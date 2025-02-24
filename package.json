@@ -30,10 +30,11 @@
     "webpack-dev-server": "^4.15.1"
   },
   "scripts": {
-    "start": "webpack serve --mode development --open",
+    "start": "webpack serve --mode development",
     "build": "webpack --mode production",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "eslintConfig": {
     "extends": [
