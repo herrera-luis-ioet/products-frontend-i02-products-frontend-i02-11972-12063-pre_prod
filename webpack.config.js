@@ -34,11 +34,20 @@ module.exports = (env, argv) => {
             {
               loader: 'css-loader',
               options: {
-                sourceMap: true,
+                sourceMap: !isProduction,
                 importLoaders: 1,
+                modules: {
+                  auto: true,
+                  localIdentName: isProduction ? '[hash:base64]' : '[path][name]__[local]',
+                },
               },
             },
-            'postcss-loader',
+            {
+              loader: 'postcss-loader',
+              options: {
+                sourceMap: !isProduction,
+              },
+            },
           ],
         },
         {
@@ -62,6 +71,8 @@ module.exports = (env, argv) => {
       }),
       ...(isProduction ? [new MiniCssExtractPlugin({
         filename: '[name].[contenthash].css',
+        chunkFilename: '[id].[contenthash].css',
+        ignoreOrder: false,
       })] : []),
     ],
     devServer: {
@@ -77,7 +88,17 @@ module.exports = (env, argv) => {
     optimization: {
       minimizer: [
         `...`,
-        new CssMinimizerPlugin(),
+        new CssMinimizerPlugin({
+          minimizerOptions: {
+            preset: [
+              'default',
+              {
+                discardComments: { removeAll: true },
+                normalizeWhitespace: false,
+              },
+            ],
+          },
+        }),
       ],
       splitChunks: {
         cacheGroups: {

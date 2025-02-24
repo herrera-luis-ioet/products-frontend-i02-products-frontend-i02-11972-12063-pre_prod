@@ -3,6 +3,7 @@
  * This module provides configuration settings and utilities for interacting with the Products API.
  */
 
+
 // Environment variable configuration with default values
 const DEFAULT_CONFIG = {
     API_BASE_URL: 'http://localhost:3000/api',
