@@ -2,6 +2,8 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const Dotenv = require('dotenv-webpack');
+const TerserPlugin = require('terser-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = (env, argv) => {
   const isDevelopment = argv.mode === 'development';
@@ -61,8 +63,14 @@ module.exports = (env, argv) => {
       }),
       new Dotenv({
         systemvars: true
+      }),
+      !isDevelopment && new CompressionPlugin({
+        test: /\.(js|css|html|svg)$/,
+        algorithm: 'gzip',
+        threshold: 10240,
+        minRatio: 0.8
       })
-    ],
+    ].filter(Boolean),
     resolve: {
       extensions: ['.js', '.jsx'],
       alias: {
@@ -72,6 +80,21 @@ module.exports = (env, argv) => {
     optimization: {
       moduleIds: 'deterministic',
       runtimeChunk: 'single',
+      minimize: !isDevelopment,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              drop_console: !isDevelopment,
+              drop_debugger: !isDevelopment
+            },
+            format: {
+              comments: false
+            }
+          },
+          extractComments: false
+        })
+      ],
       splitChunks: {
         cacheGroups: {
           vendor: {
