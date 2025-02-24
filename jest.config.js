@@ -6,13 +6,17 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js'
   },
-  testMatch: ['**/__tests__/**/*.test.js'],
+  testMatch: [
+    '**/__tests__/**/*.test.js',
+    '**/__tests__/**/*integration.test.js'
+  ],
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov'],
+  coverageReporters: ['text', 'lcov', 'html'],
   transform: {
     '^.+\\.(js|jsx)$': 'babel-jest'
   },
-  testTimeout: 10000,
-  verbose: true
+  testTimeout: 15000,
+  verbose: true,
+  maxWorkers: '50%'
 }
