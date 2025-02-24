@@ -57,27 +57,53 @@ This will run the application in development mode at [http://localhost:3000](htt
 
 ### Test Environment Setup
 
-The project uses Jest and React Testing Library for comprehensive testing. The test environment is configured to handle both unit and integration tests.
+The project uses Jest and React Testing Library for comprehensive testing. The test environment is configured to handle both unit and integration tests effectively.
 
 #### Prerequisites
 - Node.js and npm installed
 - All project dependencies installed (`npm install`)
+- Understanding of React Testing Library patterns
+- Familiarity with Jest testing framework
 
 #### Test Configuration
 
 The test environment is configured in `jest.config.js` with the following key features:
 
-- **Test Environment**: JSDOM for browser-like environment
+- **Test Environment**: 
+  - JSDOM for browser-like environment
+  - Simulates DOM APIs and browser behavior
+  - Supports React component rendering and interactions
+
 - **Setup Files**: 
-  - `src/setupTests.js`: Global test setup
-  - `@testing-library/jest-dom`: DOM testing utilities
+  - `src/setupTests.js`: Global test setup and MSW configuration
+  - `@testing-library/jest-dom`: Enhanced DOM testing utilities
+  - Custom test environment cleanup between tests
+
 - **File Mappings**:
-  - CSS/SCSS files: Handled by identity-obj-proxy
-  - Image files: Mocked via fileMock.js
-- **Test Patterns**:
+  - CSS/SCSS files: Handled by identity-obj-proxy for style imports
+  - Image files: Mocked via fileMock.js for asset imports
+  - Static assets: Properly mocked to prevent test failures
+
+- **Test Patterns and Organization**:
   - Unit tests: `**/__tests__/**/*.test.js`
+    - Focus on individual component behavior
+    - Isolated testing of functions and hooks
+    - Mock external dependencies
   - Integration tests: `**/__tests__/**/*integration.test.js`
-- **Coverage Reports**: Generated in HTML, lcov, and text formats
+    - Test component interactions
+    - Verify API integration
+    - End-to-end workflow testing
+
+- **Performance Configuration**:
+  - Parallel test execution with maxWorkers set to 50%
+  - Test timeout set to 15 seconds
+  - Verbose output for detailed test results
+
+- **Coverage Reports**: 
+  - HTML reports for visual coverage analysis
+  - LCOV format for CI/CD integration
+  - Text output for quick command-line feedback
+  - Coverage collection from all relevant source files
 
 ### MSW Configuration
 
@@ -208,19 +234,44 @@ npm run test:coverage
 ### Best Practices
 
 1. **Test Organization**
-   - Keep tests close to components
-   - Use descriptive test names
+   - Keep tests close to components in the same directory
+   - Use descriptive test names that explain the test scenario
    - Group related tests using describe blocks
+   - Follow the Arrange-Act-Assert pattern
+   - Separate unit and integration tests clearly
+   - Use test fixtures for complex test data
 
-2. **Mocking**
-   - Mock external dependencies
-   - Use MSW for API mocking
+2. **Mocking and Test Data**
+   - Mock external dependencies consistently
+   - Use MSW for API mocking with realistic responses
    - Clean up mocks after each test
+   - Create reusable mock factories
+   - Keep test data minimal but sufficient
+   - Use meaningful test data that represents real scenarios
 
-3. **Assertions**
-   - Use specific assertions
-   - Test component behavior, not implementation
-   - Cover edge cases and error scenarios
+3. **Assertions and Expectations**
+   - Use specific assertions that clearly indicate intent
+   - Test component behavior, not implementation details
+   - Cover edge cases and error scenarios thoroughly
+   - Test accessibility using RTL queries
+   - Verify component states and transitions
+   - Test user interactions and event handling
+
+4. **Testing Patterns**
+   - Use React Testing Library's user-centric queries
+   - Prefer getByRole over getByTestId
+   - Test components in isolation when possible
+   - Verify component integration points
+   - Test error boundaries and fallback UI
+   - Include performance-critical test cases
+
+5. **Code Quality**
+   - Maintain DRY principles in test code
+   - Use helper functions for common test operations
+   - Document complex test scenarios
+   - Follow consistent naming conventions
+   - Keep test files organized and maintainable
+   - Regular review and refactoring of test code
 
 ## Deployment Process
 
