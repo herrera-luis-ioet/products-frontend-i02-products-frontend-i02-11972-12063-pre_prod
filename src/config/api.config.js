@@ -6,7 +6,7 @@
 
 // Environment variable configuration with default values
 const DEFAULT_CONFIG = {
-    API_BASE_URL: 'http://3000_172_31_46_247.workspace.develop.kavia.ai/api/v1',
+    API_BASE_URL: 'https://8000_172_31_39_194.workspace.develop.kavia.ai/api/v1',
     API_TIMEOUT: 30000, // 30 seconds
     API_VERSION: 'v1',
     RETRY_ATTEMPTS: 3
@@ -40,7 +40,7 @@ export const API_CONFIG = {
     // API endpoints configuration
     ENDPOINTS: {
         PRODUCTS: {
-            LIST: '/products',
+            LIST: '/products/',
             DETAIL: '/products/:id',
             CREATE: '/products',
             UPDATE: '/products/:id',
