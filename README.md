@@ -81,23 +81,43 @@ The test environment is configured in `jest.config.js` with the following key fe
 
 ### MSW Configuration
 
-Mock Service Worker (MSW) is used for API mocking in tests. To set up MSW:
+Mock Service Worker (MSW) is used for API mocking in tests. It allows us to intercept network requests and provide mock responses, making our tests more reliable and independent of external services.
 
-1. Create handlers in `src/__mocks__/handlers.js`:
+#### Installation
+
+MSW is already included in the project dependencies. If you need to install it manually:
+
+```bash
+npm install msw --save-dev
+```
+
+#### Configuration
+
+1. The MSW setup is located in `src/mocks/`:
+   - `handlers.js`: Contains API request handlers
+   - `server.js`: Sets up the MSW server for tests
+
+2. Create handlers in `src/mocks/handlers.js`:
 ```javascript
 import { rest } from 'msw'
 
 export const handlers = [
   rest.get('/api/products', (req, res, ctx) => {
-    return res(ctx.json([/* mock data */]))
+    return res(
+      ctx.status(200),
+      ctx.json([
+        { id: 1, name: 'Product 1' },
+        { id: 2, name: 'Product 2' }
+      ])
+    )
   })
 ]
 ```
 
-2. Configure MSW in your tests:
+3. Configure MSW in your tests:
 ```javascript
 import { setupServer } from 'msw/node'
-import { handlers } from '../__mocks__/handlers'
+import { handlers } from '../mocks/handlers'
 
 const server = setupServer(...handlers)
 
@@ -105,6 +125,45 @@ beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 ```
+
+#### Usage Examples
+
+1. Testing successful API responses:
+```javascript
+test('displays products from API', async () => {
+  render(<ProductList />)
+  
+  // MSW will intercept the API call and return mock data
+  const products = await screen.findAllByRole('article')
+  expect(products).toHaveLength(2)
+})
+```
+
+2. Testing error handling:
+```javascript
+test('displays error message on API failure', async () => {
+  server.use(
+    rest.get('/api/products', (req, res, ctx) => {
+      return res(ctx.status(500))
+    })
+  )
+  
+  render(<ProductList />)
+  const errorMessage = await screen.findByText(/error loading products/i)
+  expect(errorMessage).toBeInTheDocument()
+})
+```
+
+#### Best Practices
+
+1. Keep mock data realistic and consistent with API contracts
+2. Use separate handler files for different API endpoints
+3. Reset handlers after each test to prevent test pollution
+4. Add specific handlers for error cases to test error handling
+5. Use MSW's response transformers (ctx.status, ctx.json, etc.) to simulate various API responses
+6. Keep mock data minimal but sufficient for testing requirements
+
+For more details on MSW, visit the [official documentation](https://mswjs.io/).
 
 ### Running Integration Tests
 
