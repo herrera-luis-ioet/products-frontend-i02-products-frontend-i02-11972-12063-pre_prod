@@ -38,7 +38,7 @@
   "scripts": {
     "start": "webpack serve --mode development",
     "build": "webpack --mode production",
-    "test": "jest",
+    "test": "jest --watchAll=false",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },
