@@ -6,7 +6,7 @@
 
 // Environment variable configuration with default values
 const DEFAULT_CONFIG = {
-    API_BASE_URL: 'https://8000_172_31_39_194.workspace.develop.kavia.ai/api/v1',
+    API_BASE_URL: 'https://localhost:3000/api/v1',
     API_TIMEOUT: 30000, // 30 seconds
     API_VERSION: 'v1',
     RETRY_ATTEMPTS: 3
@@ -19,7 +19,7 @@ const DEFAULT_CONFIG = {
 export const API_CONFIG = {
     // Base URL with environment variable support and validation
     BASE_URL: (() => {
-        const baseUrl = process.env.REACT_APP_API_BASE_URL || DEFAULT_CONFIG.API_BASE_URL;
+        const baseUrl = process.env.REACT_APP_API_URL || DEFAULT_CONFIG.API_BASE_URL;
         if (!baseUrl) {
             console.warn('API Base URL is not configured. Using default:', DEFAULT_CONFIG.API_BASE_URL);
         }
