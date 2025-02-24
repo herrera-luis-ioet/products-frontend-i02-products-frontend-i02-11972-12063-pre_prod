@@ -1,19 +1,18 @@
 const path = require('path');
-const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = (env, argv) => {
-  const isProduction = argv.mode === 'production';
+  const isDevelopment = argv.mode === 'development';
 
   return {
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: isProduction ? '[name].[contenthash].js' : '[name].bundle.js',
+      filename: isDevelopment ? '[name].[contenthash].js' : '[name].[contenthash].js',
       clean: true,
-      publicPath: '/',
+      publicPath: '/'
     },
     module: {
       rules: [
@@ -24,92 +23,77 @@ module.exports = (env, argv) => {
             loader: 'babel-loader',
             options: {
               presets: ['@babel/preset-env', '@babel/preset-react']
-            },
-          },
+            }
+          }
         },
         {
           test: /\.css$/,
           use: [
-            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+            isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
               options: {
-                sourceMap: !isProduction,
-                importLoaders: 1,
+                sourceMap: isDevelopment,
                 modules: {
                   auto: true,
-                  localIdentName: isProduction ? '[hash:base64]' : '[path][name]__[local]',
-                },
-              },
+                  localIdentName: isDevelopment
+                    ? '[name]__[local]--[hash:base64:5]'
+                    : '[hash:base64]'
+                }
+              }
             },
-            {
-              loader: 'postcss-loader',
-              options: {
-                sourceMap: !isProduction,
-              },
-            },
-          ],
+            'postcss-loader'
+          ]
         },
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
-          type: 'asset/resource',
-        },
-      ],
-    },
-    resolve: {
-      extensions: ['.js', '.jsx'],
+          type: 'asset/resource'
+        }
+      ]
     },
     plugins: [
       new HtmlWebpackPlugin({
-        template: './public/index.html',
-        inject: true,
+        template: './src/index.html',
+        minify: !isDevelopment
       }),
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-        'process.env.CI': JSON.stringify(process.env.CI || false),
-        'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL || 'http://localhost:3000')
+      new MiniCssExtractPlugin({
+        filename: isDevelopment ? '[name].css' : '[name].[contenthash].css'
       }),
-      ...(isProduction ? [new MiniCssExtractPlugin({
-        filename: '[name].[contenthash].css',
-        chunkFilename: '[id].[contenthash].css',
-        ignoreOrder: false,
-      })] : []),
+      new Dotenv({
+        systemvars: true
+      })
     ],
-    devServer: {
-      static: {
-        directory: path.join(__dirname, 'public'),
-      },
-      hot: true,
-      port: 3000,
-      historyApiFallback: true,
-      allowedHosts: "all",
+    resolve: {
+      extensions: ['.js', '.jsx'],
+      alias: {
+        '@': path.resolve(__dirname, 'src')
+      }
     },
-    devtool: isProduction ? 'source-map' : 'eval-source-map',
     optimization: {
-      minimizer: [
-        `...`,
-        new CssMinimizerPlugin({
-          minimizerOptions: {
-            preset: [
-              'default',
-              {
-                discardComments: { removeAll: true },
-                normalizeWhitespace: false,
-              },
-            ],
-          },
-        }),
-      ],
+      moduleIds: 'deterministic',
+      runtimeChunk: 'single',
       splitChunks: {
         cacheGroups: {
-          styles: {
-            name: 'styles',
-            type: 'css/mini-extract',
-            chunks: 'all',
-            enforce: true,
-          },
-        },
-      },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all'
+          }
+        }
+      }
     },
+    devtool: isDevelopment ? 'eval-source-map' : 'source-map',
+    devServer: {
+      historyApiFallback: true,
+      hot: true,
+      open: true,
+      port: 3000,
+      client: {
+        overlay: true
+      }
+    },
+    performance: {
+      hints: isDevelopment ? false : 'warning'
+    }
   };
 };
