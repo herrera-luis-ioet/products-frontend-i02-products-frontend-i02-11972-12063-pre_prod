@@ -12,6 +12,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, 'dist'),
       filename: isProduction ? '[name].[contenthash].js' : '[name].bundle.js',
       clean: true,
+      publicPath: '/',
     },
     module: {
       rules: [
@@ -20,6 +21,9 @@ module.exports = (env, argv) => {
           exclude: /node_modules/,
           use: {
             loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env', '@babel/preset-react']
+            },
           },
         },
         {
@@ -48,6 +52,8 @@ module.exports = (env, argv) => {
     plugins: [
       new HtmlWebpackPlugin({
         template: './public/index.html',
+        inject: true,
+        favicon: './public/favicon.ico',
       }),
       ...(isProduction ? [new MiniCssExtractPlugin({
         filename: '[name].[contenthash].css',
