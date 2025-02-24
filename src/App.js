@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import ProductList from './components/ProductList/ProductList';
 
 // PUBLIC_INTERFACE
 function App() {
@@ -9,7 +10,7 @@ function App() {
         <h1>Products Frontend</h1>
       </header>
       <main>
-        {/* Main content will be added here */}
+        <ProductList />
       </main>
     </div>
   );
