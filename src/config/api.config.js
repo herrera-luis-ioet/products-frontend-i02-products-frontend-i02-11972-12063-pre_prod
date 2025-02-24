@@ -6,7 +6,7 @@
 
 // Environment variable configuration with default values
 const DEFAULT_CONFIG = {
-    API_BASE_URL: 'http://localhost:3000/api',
+    API_BASE_URL: 'http://localhost:3000/api/v1',
     API_TIMEOUT: 30000, // 30 seconds
     API_VERSION: 'v1',
     RETRY_ATTEMPTS: 3
