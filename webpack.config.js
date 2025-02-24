@@ -113,7 +113,8 @@ module.exports = (env, argv) => {
       port: 3000,
       client: {
         overlay: true
-      }
+      },
+      allowedHosts: "all"
     },
     performance: {
       hints: isDevelopment ? false : 'warning'
