@@ -6,6 +6,16 @@ import ProductList from '../components/ProductList/ProductList';
 // Mock the API module
 jest.mock('../services/api');
 
+// Mock console.error to prevent test output pollution
+const originalError = console.error;
+beforeAll(() => {
+    console.error = jest.fn();
+});
+
+afterAll(() => {
+    console.error = originalError;
+});
+
 describe('ProductList Component', () => {
     const mockProducts = [
         {
@@ -96,6 +106,108 @@ describe('ProductList Component', () => {
             mockProducts.forEach(product => {
                 const article = screen.getByRole('article', { name: `Product: ${product.name}` });
                 expect(article).toBeInTheDocument();
+            });
+        });
+    });
+
+    describe('Data Validation', () => {
+        test('handles invalid product data format', async () => {
+            const invalidProducts = [
+                { id: 1 }, // Missing required fields
+                { name: 'Invalid', price: 'not-a-number' }, // Invalid price type
+                { id: 2, name: 123, price: -10 }, // Invalid name type and negative price
+                null, // Null product
+                undefined, // Undefined product
+                'not-an-object' // Not an object
+            ];
+            
+            ProductsAPI.getAllProducts.mockResolvedValue(invalidProducts);
+            render(<ProductList />);
+            
+            await waitFor(() => {
+                expect(screen.getByText('No products available.')).toBeInTheDocument();
+            });
+        });
+
+        test('filters out invalid products while keeping valid ones', async () => {
+            const mixedProducts = [
+                { id: 1, name: 'Valid Product', price: 99.99 }, // Valid
+                { id: 2 }, // Invalid - missing fields
+                { id: 3, name: 'Another Valid', price: 149.99 }, // Valid
+                { name: 'Invalid', price: 'wrong' } // Invalid - missing id
+            ];
+            
+            ProductsAPI.getAllProducts.mockResolvedValue(mixedProducts);
+            render(<ProductList />);
+            
+            await waitFor(() => {
+                expect(screen.getByText('Valid Product')).toBeInTheDocument();
+                expect(screen.getByText('Another Valid')).toBeInTheDocument();
+                expect(screen.queryByText('Invalid')).not.toBeInTheDocument();
+            });
+        });
+    });
+
+    describe('API Error Handling', () => {
+        test('handles non-array API response', async () => {
+            ProductsAPI.getAllProducts.mockResolvedValue({ error: 'Invalid format' });
+            render(<ProductList />);
+            
+            await waitFor(() => {
+                expect(screen.getByRole('alert')).toHaveTextContent('Failed to load products');
+            });
+        });
+
+        test('handles network timeout', async () => {
+            ProductsAPI.getAllProducts.mockRejectedValue(new Error('Network timeout'));
+            render(<ProductList />);
+            
+            await waitFor(() => {
+                expect(screen.getByRole('alert')).toHaveTextContent('Failed to load products');
+                expect(console.error).toHaveBeenCalledWith('Error fetching products:', expect.any(Error));
+            });
+        });
+
+        test('handles server error response', async () => {
+            ProductsAPI.getAllProducts.mockRejectedValue(new Error('500 Internal Server Error'));
+            render(<ProductList />);
+            
+            await waitFor(() => {
+                expect(screen.getByRole('alert')).toHaveTextContent('Failed to load products');
+                expect(console.error).toHaveBeenCalledWith('Error fetching products:', expect.any(Error));
+            });
+        });
+    });
+
+    describe('Edge Cases', () => {
+        test('handles products with minimum valid data', async () => {
+            const minimalProducts = [
+                { id: 1, name: 'Minimal', price: 0 }, // Minimum price
+                { id: '2', name: '', price: 0.01 } // String ID and empty name
+            ];
+            
+            ProductsAPI.getAllProducts.mockResolvedValue(minimalProducts);
+            render(<ProductList />);
+            
+            await waitFor(() => {
+                expect(screen.getByText('Minimal')).toBeInTheDocument();
+                expect(screen.getByText('$0.00')).toBeInTheDocument();
+                expect(screen.getByText('$0.01')).toBeInTheDocument();
+            });
+        });
+
+        test('handles extremely large product datasets', async () => {
+            const largeProductSet = Array.from({ length: 100 }, (_, i) => ({
+                id: i + 1,
+                name: `Product ${i + 1}`,
+                price: 99.99
+            }));
+            
+            ProductsAPI.getAllProducts.mockResolvedValue(largeProductSet);
+            render(<ProductList />);
+            
+            await waitFor(() => {
+                expect(screen.getAllByRole('article')).toHaveLength(100);
             });
         });
     });
