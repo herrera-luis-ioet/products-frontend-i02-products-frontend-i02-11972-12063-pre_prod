@@ -56,7 +56,9 @@ module.exports = (env, argv) => {
         inject: true,
       }),
       new webpack.DefinePlugin({
-        'process.env': JSON.stringify(process.env)
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+        'process.env.CI': JSON.stringify(process.env.CI || false),
+        'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL || 'http://localhost:3000')
       }),
       ...(isProduction ? [new MiniCssExtractPlugin({
         filename: '[name].[contenthash].css',
