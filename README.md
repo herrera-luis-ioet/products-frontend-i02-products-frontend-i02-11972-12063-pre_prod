@@ -105,6 +105,37 @@ The test environment is configured in `jest.config.js` with the following key fe
   - Text output for quick command-line feedback
   - Coverage collection from all relevant source files
 
+- **Available Test Scripts**:
+  ```bash
+  # Run all tests
+  npm test
+
+  # Run tests in watch mode
+  npm run test:watch
+
+  # Run with coverage report
+  npm run test:coverage
+
+  # Run integration tests only
+  npm run test:integration
+
+  # Run all tests with coverage and handle open handles
+  npm run test:all
+
+  # Run tests in CI environment
+  npm run test:ci
+
+  # Run tests in debug mode
+  npm run test:debug
+  ```
+
+- **Test Environment Variables**:
+  ```bash
+  # Set in package.json scripts
+  CI=true            # Non-interactive mode
+  NODE_ENV=test     # Test environment
+  ```
+
 ### MSW Configuration
 
 Mock Service Worker (MSW) is used for API mocking in tests. It allows us to intercept network requests and provide mock responses, making our tests more reliable and independent of external services.
