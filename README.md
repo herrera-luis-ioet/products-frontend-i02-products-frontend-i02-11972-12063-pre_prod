@@ -55,18 +55,113 @@ This will run the application in development mode at [http://localhost:3000](htt
 
 ## Testing
 
-The project uses Jest and React Testing Library for testing. Available test commands:
+### Test Environment Setup
+
+The project uses Jest and React Testing Library for comprehensive testing. The test environment is configured to handle both unit and integration tests.
+
+#### Prerequisites
+- Node.js and npm installed
+- All project dependencies installed (`npm install`)
+
+#### Test Configuration
+
+The test environment is configured in `jest.config.js` with the following key features:
+
+- **Test Environment**: JSDOM for browser-like environment
+- **Setup Files**: 
+  - `src/setupTests.js`: Global test setup
+  - `@testing-library/jest-dom`: DOM testing utilities
+- **File Mappings**:
+  - CSS/SCSS files: Handled by identity-obj-proxy
+  - Image files: Mocked via fileMock.js
+- **Test Patterns**:
+  - Unit tests: `**/__tests__/**/*.test.js`
+  - Integration tests: `**/__tests__/**/*integration.test.js`
+- **Coverage Reports**: Generated in HTML, lcov, and text formats
+
+### MSW Configuration
+
+Mock Service Worker (MSW) is used for API mocking in tests. To set up MSW:
+
+1. Create handlers in `src/__mocks__/handlers.js`:
+```javascript
+import { rest } from 'msw'
+
+export const handlers = [
+  rest.get('/api/products', (req, res, ctx) => {
+    return res(ctx.json([/* mock data */]))
+  })
+]
+```
+
+2. Configure MSW in your tests:
+```javascript
+import { setupServer } from 'msw/node'
+import { handlers } from '../__mocks__/handlers'
+
+const server = setupServer(...handlers)
+
+beforeAll(() => server.listen())
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
+```
+
+### Running Integration Tests
+
+Integration tests verify component interactions and API integrations:
 
 ```bash
-# Run tests once
+# Run all tests (unit + integration)
 npm test
 
 # Run tests in watch mode
 npm run test:watch
 
+# Run only integration tests
+npm test -- --testMatch="**/*integration.test.js"
+
 # Generate test coverage report
 npm run test:coverage
 ```
+
+### Troubleshooting Common Issues
+
+1. **Test Timeouts**
+   - Default timeout is 15000ms
+   - Increase timeout in jest.config.js if needed
+   - Check for slow API responses or heavy computations
+
+2. **JSDOM Related Issues**
+   - Ensure DOM manipulation is wrapped in act()
+   - Check for missing cleanup in useEffect
+   - Verify proper event handling
+
+3. **Mock Service Worker Issues**
+   - Verify handler patterns match API calls
+   - Check for proper server setup/teardown
+   - Ensure handlers are properly reset between tests
+
+4. **Coverage Issues**
+   - Coverage reports are generated in ./coverage
+   - Minimum coverage thresholds can be configured in jest.config.js
+   - Use coverage reports to identify untested code
+
+### Best Practices
+
+1. **Test Organization**
+   - Keep tests close to components
+   - Use descriptive test names
+   - Group related tests using describe blocks
+
+2. **Mocking**
+   - Mock external dependencies
+   - Use MSW for API mocking
+   - Clean up mocks after each test
+
+3. **Assertions**
+   - Use specific assertions
+   - Test component behavior, not implementation
+   - Cover edge cases and error scenarios
 
 ## Deployment Process
 
