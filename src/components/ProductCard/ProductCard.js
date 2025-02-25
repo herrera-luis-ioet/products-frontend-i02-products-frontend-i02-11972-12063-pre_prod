@@ -12,8 +12,10 @@ const ProductCard = ({ product }) => {
         name = 'Product Name Unavailable',
         description = 'No description available',
         price = 0,
-        image = '/placeholder-image.jpg'
+        multimedia = ['/placeholder-image.jpg']
     } = product || {};
+
+    const image = multimedia[0] || '/placeholder-image.jpg';
 
     // Format price with 2 decimal places and handle non-numeric values
     const formattedPrice = typeof price === 'number' ? price.toFixed(2) : '0.00';

@@ -1,6 +1,8 @@
 // Cache key prefix for failed image URLs
 const FAILED_IMAGE_CACHE_PREFIX = 'failed_image_url_';
-// Cache duration in milliseconds (24 hours)\nconst CACHE_DURATION = 24 * 60 * 60 * 1000;\n
+// Cache duration in milliseconds (24 hours)
+const CACHE_DURATION = 24 * 60 * 60 * 1000;
+
 /**
  * Validates if a URL is a valid image URL by checking the cache and optionally making a HEAD request
  * @param {string} url - The URL to validate
